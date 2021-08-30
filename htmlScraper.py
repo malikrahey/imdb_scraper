@@ -13,9 +13,9 @@ def get_link(div):
     link = div[start_index:end_index]
     return link
 
-def get_div_text(div, tag = "div"):
+def get_div_text(div, tag = "div", contains_div = False):
     start_index = div.find('>') + 1
-    end_index = div.find('</{}>'.format(tag), start_index)
+    end_index = div.find('</{}>'.format(tag), start_index) if not contains_div else div.find("<",start_index)
 
     #Sanity check for if end tag is not included, above line assumes it is but for now it isnt being
     end_index = end_index if end_index > 0 else len(div)
@@ -25,7 +25,7 @@ def get_div_text(div, tag = "div"):
 
 def get_div_by_class(page, class_name, tag = "div"):
     div = ''
-    start_index = page.find('<{} class="{}'.format(tag, class_name)) if class_name else page.find('<{}>'.format(tag))
+    start_index = get_start_index(page,class_name,tag) if class_name is not None else page.find('<{}>'.format(tag))
     is_entire_div = False
     offset = 0
     levels = 1
@@ -39,9 +39,9 @@ def get_div_by_class(page, class_name, tag = "div"):
             break
     return div
 
-def get_div_text_by_class(page, class_name, tag = "div"):
+def get_div_text_by_class(page, class_name, tag = "div", contains_div = False):
     div = get_div_by_class(page,class_name,tag)
-    return get_div_text(div,tag)
+    return get_div_text(div,tag,contains_div)
 
 
 def get_all_divs_by_class(page, class_name):
@@ -97,5 +97,19 @@ def get_img_src(img):
     link = img[start_index:end_index]
     return link
 
-    
+def get_button_by_title(page, title, tag="a"):
+    return get_div_by_class(page,title,tag)
 
+
+    
+def get_start_index(page, class_name, tag = 'div'):
+    start_index = 0
+    offset = 0
+    while start_index > -1:
+        start_index = page.find('<{}'.format(tag))
+        end_index = page.find('>', start_index)
+        if class_name in page[start_index:end_index]:
+            return start_index + offset
+        offset += end_index
+        page = page[end_index + 1:]
+    return start_index
