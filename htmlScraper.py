@@ -2,7 +2,10 @@ import html, requests, time
 
 def scrape_page(url):
     time.sleep(0.4)
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36',
+        'Content-Type': 'text/html'
+    }
     result = requests.get(url, headers=headers)
     cntnt = result.content.decode('utf-8')
     return html.unescape(cntnt)
@@ -44,21 +47,21 @@ def get_div_text_by_class(page, class_name, tag = "div", contains_div = False):
     return get_div_text(div,tag,contains_div)
 
 
-def get_all_divs_by_class(page, class_name):
+def get_all_divs_by_class(page, class_name, tag = "div"):
     divs = []
     div = ''
     
-    while '<div class="{}"'.format(class_name) in page:
-        start_index = page.find('<div class="{}"'.format(class_name))
+    while '<{} class="{}"'.format(tag,class_name) in page:
+        start_index = page.find('<{} class="{}"'.format(tag,class_name))
         is_entire_div = False
         offset = 0
         levels = 1
         end_index = 0
         while not is_entire_div:
-            end_index = page.find('</div>', start_index + offset)
+            end_index = page.find('</{}>'.format(tag), start_index + offset)
             offset = end_index - start_index + 4
             div = page[start_index:end_index]
-            is_entire_div = div.count('<div') == levels
+            is_entire_div = div.count('<{}'.format(tag)) == levels
             levels = levels + 1
             if levels > 100:  #Sanity check
                 break
