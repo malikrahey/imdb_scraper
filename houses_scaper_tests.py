@@ -28,7 +28,7 @@ def get_homes_from_url_test():
     print(houses[0])
 
 def get_csv_from_file_test():
-    hs.get_csv_from_file_links('houseforsalelinks.txt','housetest1')
+    hs.get_csv_from_file_links('houseforsalelinks.txt','housetest2')
 
 def convert_price_to_int_test():
     price = "$130,000.00"
